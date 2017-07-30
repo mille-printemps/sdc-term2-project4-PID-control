@@ -1,6 +1,8 @@
 #ifndef PID_H
 #define PID_H
 
+#include <vector>
+
 class PID {
 public:
   /*
@@ -42,9 +44,23 @@ public:
   */
   double TotalError();
   
+  double Twiddle(double error, double best_error, double threshold);
+  
 private:
+  enum Status {
+    PHASE_ONE,
+    PHASE_TWO,
+    PHASE_THREE
+  };
   
   double previous_cte_;
+  
+  std::vector<double> coefficients_;
+  std::vector<double> steps_;
+  
+  int coefficient_index_;
+  
+  Status status_;
 };
 
 #endif /* PID_H */
