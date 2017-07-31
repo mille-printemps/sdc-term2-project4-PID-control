@@ -5,12 +5,14 @@
 
 using namespace std;
 
+const int PID::NUMBER_OF_COEFFICIENTS = 3;
+
 /*
 * TODO: Complete the PID class.
 */
 
 PID::PID() {
-  for (int i=0; i<3; i++) {
+  for (int i=0; i<NUMBER_OF_COEFFICIENTS; i++) {
     coefficients_.push_back(0.0);
     steps_.push_back(1.0);
   }
@@ -50,6 +52,7 @@ double PID::TotalError() {
 double PID::Twiddle(double error, double best_error, double threshold) {
   double step = accumulate(steps_.begin(), steps_.end(), 0.0);
   
+  cout << endl;
   cout << "Total Step: " << step << endl;
   
   if (step < threshold) {
@@ -57,7 +60,7 @@ double PID::Twiddle(double error, double best_error, double threshold) {
   }
 
   double latest_best_error = 0;
-  int index = coefficient_index_ % 3;
+  int index = coefficient_index_ % NUMBER_OF_COEFFICIENTS;
   
   switch(status_) {
     case PHASE_ONE:
@@ -101,6 +104,7 @@ double PID::Twiddle(double error, double best_error, double threshold) {
   
   cout << "Kp: " << coefficients_[0] << " Ki: "  << coefficients_[1] << " Kd: " << coefficients_[2] << endl;
   cout << "Step1: " << steps_[0] << " Step2: " << steps_[1] << " Step3: " << steps_[2] << endl;
+  cout << endl;
   
   return latest_best_error;
 }

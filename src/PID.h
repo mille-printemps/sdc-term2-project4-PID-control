@@ -47,6 +47,8 @@ public:
   double Twiddle(double error, double best_error, double threshold);
   
 private:
+  static const int NUMBER_OF_COEFFICIENTS;
+  
   enum Status {
     PHASE_ONE,
     PHASE_TWO,

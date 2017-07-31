@@ -31,9 +31,9 @@ std::string hasData(std::string s) {
 int main()
 {
   // Constants
-  static const int NUMBER_OF_SAMPLES = 10;
+  static const int NUMBER_OF_SAMPLES = 100;
   static const int NUMBER_OF_ITERATIONS = NUMBER_OF_SAMPLES * 2;
-  static const double THRESHOLD = 0.01;
+  static const double THRESHOLD = 0.2;
   
   // Flags
   static bool twiddling = true;
@@ -80,13 +80,13 @@ int main()
           double steer_value = fmin(fmax(total_error, -1), 1);
           
           // DEBUG
-          std::cout << counter << ": " << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          // std::cout << counter << ": " << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
           
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
           
           if (twiddling) {
@@ -97,15 +97,16 @@ int main()
             if (counter == NUMBER_OF_ITERATIONS) {
               error = error / NUMBER_OF_SAMPLES;
 
-              if (best_error != 0) {
-                best_error = pid.Twiddle(error, best_error, THRESHOLD);
-              } else {
+              if (best_error == 0) {
                 best_error = error;
+              } else {
+                best_error = pid.Twiddle(error, best_error, THRESHOLD);
+                
+                if (best_error == -1) {
+                  twiddling = false;
+                }
               }
               
-              if (best_error == -1) {
-                twiddling = false;
-              }
               
               std::cout << "best error: " << best_error << std::endl;
 
