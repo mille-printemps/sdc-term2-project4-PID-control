@@ -22,7 +22,7 @@ public:
   /*
   * Constructor
   */
-  PID();
+  PID(std::vector<double> initial_steps, double threshold);
 
   /*
   * Destructor.
@@ -44,10 +44,9 @@ public:
   */
   double TotalError();
   
-  double Twiddle(double error, double best_error, double threshold);
+  double Twiddle(double error, double best_error);
   
 private:
-  static const int NUMBER_OF_COEFFICIENTS;
   
   enum Status {
     PHASE_ONE,
@@ -59,8 +58,10 @@ private:
   
   std::vector<double> coefficients_;
   std::vector<double> steps_;
-  
+
+  int number_of_coefficients_;
   int coefficient_index_;
+  double threshold_;
   
   Status status_;
 };

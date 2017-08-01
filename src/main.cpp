@@ -1,5 +1,6 @@
 #include <uWS/uWS.h>
 #include <iostream>
+#include <vector>
 #include "json.hpp"
 #include "PID.h"
 #include <math.h>
@@ -31,16 +32,33 @@ std::string hasData(std::string s) {
 int main()
 {
   /*
+   Total Step: 0.0709124
+   Kp: 0.0611893 Ki: 0.000728591 Kd: 0.402992
+   Step1: 0.0070193 Step2: 8.12761e-05 Step3: 0.0638118
+   
+   best error: 0.0121295
+
+   
    Total Step: 0.889026
    Kp: 8.33875 Ki: 0 Kd: 9.88253
    Step1: 0.523401 Step2: 0.0471013 Step3: 0.318524
    */
   
   // Constants
-  static const int NUMBER_OF_ITERATIONS = 300;
+  static const int NUMBER_OF_ITERATIONS = 400;
   static const int OFFSET = 100;
   static const int NUMBER_OF_SAMPLES = NUMBER_OF_ITERATIONS - OFFSET;
-  static const double THRESHOLD = 1.0;
+
+  static const double K_P = 0.01;
+  static const double K_I = 0.0001;
+  static const double K_D = 0.1;
+  static const double THRESHOLD = 0.08;
+  
+  /*
+   static double Kp = 0.1;
+   static double Ki = 0.01;
+   static double Kd = 1.0;
+   */
   
   // Flags
   // static bool twiddling = false;
@@ -52,19 +70,11 @@ int main()
   static double best_error = 0;
   
   uWS::Hub h;
+  
+  std::vector<double> initial_steps = {K_P, K_I, K_D};
+  PID pid(initial_steps, THRESHOLD);
 
-  PID pid;
-
-  static double Kp = 8.33875;
-  static double Ki = 0.0471013;
-  static double Kd = 9.88253;
-  /*
-  static double Kp = 0.1;
-  static double Ki = 0.01;
-  static double Kd = 1.0;
-  */
-
-  pid.Init(Kp, Ki, Kd);
+  pid.Init(K_P, K_I, K_D);
   
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -115,9 +125,9 @@ int main()
 
               if (best_error == 0) {
                 best_error = error;
-                best_error = pid.Twiddle(error, best_error, THRESHOLD);
+                best_error = pid.Twiddle(error, best_error);
               } else {
-                best_error = pid.Twiddle(error, best_error, THRESHOLD);
+                best_error = pid.Twiddle(error, best_error);
                 if (best_error == -1) {
                   twiddling = false;
                 }
@@ -127,7 +137,7 @@ int main()
 
               error = 0;
               counter = 0;
-              pid.Init(Kp, Ki, Kd);
+              pid.Init(K_P, K_I, K_D);
               std::string msg = "42[\"reset\",{}]";
               ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
             }
