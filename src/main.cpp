@@ -30,12 +30,20 @@ std::string hasData(std::string s) {
 
 int main()
 {
+  /*
+   Total Step: 0.889026
+   Kp: 8.33875 Ki: 0 Kd: 9.88253
+   Step1: 0.523401 Step2: 0.0471013 Step3: 0.318524
+   */
+  
   // Constants
-  static const int NUMBER_OF_SAMPLES = 100;
-  static const int NUMBER_OF_ITERATIONS = NUMBER_OF_SAMPLES * 2;
-  static const double THRESHOLD = 0.2;
+  static const int NUMBER_OF_ITERATIONS = 300;
+  static const int OFFSET = 100;
+  static const int NUMBER_OF_SAMPLES = NUMBER_OF_ITERATIONS - OFFSET;
+  static const double THRESHOLD = 1.0;
   
   // Flags
+  // static bool twiddling = false;
   static bool twiddling = true;
   
   // Variables for twiddling
@@ -46,10 +54,15 @@ int main()
   uWS::Hub h;
 
   PID pid;
-  
+
+  static double Kp = 8.33875;
+  static double Ki = 0.0471013;
+  static double Kd = 9.88253;
+  /*
   static double Kp = 0.1;
   static double Ki = 0.01;
   static double Kd = 1.0;
+  */
 
   pid.Init(Kp, Ki, Kd);
   
@@ -78,6 +91,8 @@ int main()
           pid.UpdateError(cte);
           double total_error = pid.TotalError();
           double steer_value = fmin(fmax(total_error, -1), 1);
+          // double steer_value = total_error;
+
           
           // DEBUG
           // std::cout << counter << ": " << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
@@ -89,24 +104,24 @@ int main()
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
           
+          // Twiddle to decide the coefficients
           if (twiddling) {
-            counter++;
-            if (NUMBER_OF_SAMPLES <= counter) {
+            if (OFFSET <= counter) {
               error += pow(cte, 2.0);
             }
-            if (counter == NUMBER_OF_ITERATIONS) {
+            
+            if (counter == NUMBER_OF_ITERATIONS-1) {
               error = error / NUMBER_OF_SAMPLES;
 
               if (best_error == 0) {
                 best_error = error;
+                best_error = pid.Twiddle(error, best_error, THRESHOLD);
               } else {
                 best_error = pid.Twiddle(error, best_error, THRESHOLD);
-                
                 if (best_error == -1) {
                   twiddling = false;
                 }
               }
-              
               
               std::cout << "best error: " << best_error << std::endl;
 
@@ -116,6 +131,8 @@ int main()
               std::string msg = "42[\"reset\",{}]";
               ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
             }
+            
+            counter++;
           }
 
         }

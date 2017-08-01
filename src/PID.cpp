@@ -54,13 +54,14 @@ double PID::Twiddle(double error, double best_error, double threshold) {
   
   cout << endl;
   cout << "Total Step: " << step << endl;
+
+  int index = coefficient_index_ % NUMBER_OF_COEFFICIENTS;
   
-  if (step < threshold) {
+  if (step < threshold && index == NUMBER_OF_COEFFICIENTS-1) {
     return -1;
   }
 
   double latest_best_error = 0;
-  int index = coefficient_index_ % NUMBER_OF_COEFFICIENTS;
   
   switch(status_) {
     case PHASE_ONE:
@@ -87,11 +88,13 @@ double PID::Twiddle(double error, double best_error, double threshold) {
     case PHASE_THREE:
     {
       if (error < best_error) {
-        steps_[index] *= 1.1;
+        steps_[index] *= 1.05;
+        // steps_[index] *= 1.1;
         latest_best_error = error;
       } else {
         coefficients_[index] += steps_[index];
-        steps_[index] *= 0.9;
+        steps_[index] *= 0.95;
+        // steps_[index] *= 0.9;
         latest_best_error = best_error;
       }
       status_ = PHASE_ONE;
