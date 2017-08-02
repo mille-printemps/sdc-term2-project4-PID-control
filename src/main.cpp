@@ -31,38 +31,19 @@ std::string hasData(std::string s) {
 
 int main()
 {
-  /*
-   Total Step: 0.0709124
-   Kp: 0.0611893 Ki: 0.000728591 Kd: 0.402992
-   Step1: 0.0070193 Step2: 8.12761e-05 Step3: 0.0638118
-   
-   best error: 0.0121295
-
-   
-   Total Step: 0.889026
-   Kp: 8.33875 Ki: 0 Kd: 9.88253
-   Step1: 0.523401 Step2: 0.0471013 Step3: 0.318524
-   */
-  
   // Constants
-  static const int NUMBER_OF_ITERATIONS = 400;
+  static const int NUMBER_OF_ITERATIONS = 600;
   static const int OFFSET = 100;
   static const int NUMBER_OF_SAMPLES = NUMBER_OF_ITERATIONS - OFFSET;
 
-  static const double K_P = 0.01;
-  static const double K_I = 0.0001;
-  static const double K_D = 0.1;
-  static const double THRESHOLD = 0.08;
-  
-  /*
-   static double Kp = 0.1;
-   static double Ki = 0.01;
-   static double Kd = 1.0;
-   */
+  static const double THRESHOLD = 0.8;
+  static const double K_P = 0.1;    // 0.1;
+  static const double K_I = 0.0001; // 0.0001
+  static const double K_D = 4.0;     // 4.0;
   
   // Flags
-  // static bool twiddling = false;
-  static bool twiddling = true;
+  static bool twiddling = false;
+  // static bool twiddling = true;
   
   // Variables for twiddling
   static int counter = 0;
@@ -105,13 +86,13 @@ int main()
 
           
           // DEBUG
-          // std::cout << counter << ": " << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          std::cout << counter << ": " << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
           
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
+          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
           
           // Twiddle to decide the coefficients

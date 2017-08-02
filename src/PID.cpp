@@ -26,9 +26,9 @@ PID::PID(vector<double> initial_steps, double threshold) {
 PID::~PID() {}
 
 void PID::Init(double Kp, double Ki, double Kd) {
-  // Kp_ = Kp;
-  // Ki_ = Ki;
-  // Kd_ = Kd;
+  Kp_ = Kp;
+  Ki_ = Ki;
+  Kd_ = Kd;
   
   p_error_ = 0;
   i_error_ = 0;
@@ -46,8 +46,8 @@ void PID::UpdateError(double cte) {
 }
 
 double PID::TotalError() {
-  return -(coefficients_[0] * p_error_ + coefficients_[1] * i_error_ + coefficients_[2] * d_error_);
-  // return -(Kp_ * p_error_ + Ki_ * i_error_ + Kd_ * d_error_);
+  // return -(coefficients_[0] * p_error_ + coefficients_[1] * i_error_ + coefficients_[2] * d_error_);
+  return -(Kp_ * p_error_ + Ki_ * i_error_ + Kd_ * d_error_);
 }
 
 double PID::Twiddle(double error, double best_error) {
