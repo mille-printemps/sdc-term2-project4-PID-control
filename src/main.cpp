@@ -35,28 +35,16 @@ int main()
   static const int NUMBER_OF_ITERATIONS = 1000;
   static const int OFFSET = 100;
   static const int NUMBER_OF_SAMPLES = NUMBER_OF_ITERATIONS - OFFSET;
-  
-  /*
-   Total Step: 2.98394 / 3.28008
-   Kp: 0.3079 Ki: 6.561e-05 Kd: 4
-   Step1: 0.0970299 Step2: 6.49539e-05 Step3: 2.88684
-   
-   best error: 0.0548358
-   Connected!!!
-   
-   Total Step: 2.98393 / 3.28008
-   best error: -1
-		   */
 
-  static const double K_P = 0.1;    // 0.1;
-  static const double K_I = 0.0001; // 0.0001;
-  static const double K_D = 4.0;     // 4.0;
+  static const double K_P = 0.3079;    // 0.1;
+  static const double K_I = 6.561e-05; // 0.0001;
+  static const double K_D = 4.0;       // 4.0;
   static const std::vector<double> COEFFICIENTS = {K_P, K_I, K_D};
   static const double THRESHOLD = (K_P + K_I + K_D) * 0.8;
   
   // Flags
-  // static bool twiddling = false;
-  static bool twiddling = true;
+  static bool twiddling = false;
+  // static bool twiddling = true;
   
   // Variables for twiddling
   static int counter = 0;

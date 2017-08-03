@@ -59,6 +59,7 @@ double PID::Twiddle(double error, double best_error) {
   double latest_best_error = 0;
   
   switch(status_) {
+    // Try one direction
     case PHASE_ONE:
     {
       coefficients_[index] += steps_[index];
@@ -68,12 +69,15 @@ double PID::Twiddle(double error, double best_error) {
     }
     case PHASE_TWO:
     {
+      // There was improvement, then go to the next coefficient
       if (error < best_error) {
         steps_[index] *= 1.1;
         status_ = PHASE_ONE;
         coefficient_index_++;
         latest_best_error = error;
-      } else {
+      }
+      // There was no improvement, then got the other direction
+      else {
         coefficients_[index] -= 2 * steps_[index];
         status_ = PHASE_THREE;
         latest_best_error = best_error;
@@ -82,13 +86,14 @@ double PID::Twiddle(double error, double best_error) {
     }
     case PHASE_THREE:
     {
+      // There was improvement, then increase the step size
       if (error < best_error) {
-        // steps_[index] *= 1.05;
         steps_[index] *= 1.1;
         latest_best_error = error;
-      } else {
+      }
+      // There was no improvement, then go back and decrease the step size
+      else {
         coefficients_[index] += steps_[index];
-        // steps_[index] *= 0.95;
         steps_[index] *= 0.9;
         latest_best_error = best_error;
       }
