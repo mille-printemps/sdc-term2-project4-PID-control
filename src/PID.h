@@ -22,7 +22,7 @@ public:
   /*
   * Constructor
   */
-  PID(std::vector<double> initial_steps, double threshold);
+  PID(std::vector<double> coefficients, double threshold, bool twiddling=false);
 
   /*
   * Destructor.
@@ -32,7 +32,7 @@ public:
   /*
   * Initialize PID.
   */
-  void Init(double Kp, double Ki, double Kd);
+  void Init();
 
   /*
   * Update the PID error variables given cross track error.

@@ -5,31 +5,26 @@
 
 using namespace std;
 
-/*
-* TODO: Complete the PID class.
-*/
-
-PID::PID(vector<double> initial_steps, double threshold) {
-  threshold_ = threshold;
-  number_of_coefficients_ = initial_steps.size();
-  
+PID::PID(vector<double> coefficients, double threshold, bool twiddling) {
+  number_of_coefficients_ = coefficients.size();
   for (int i=0; i<number_of_coefficients_; i++) {
-    coefficients_.push_back(0.0);
-    steps_.push_back(initial_steps[i]);
+    if (twiddling) {
+      coefficients_.push_back(0.0);
+      steps_.push_back(coefficients[i]);
+    } else {
+      coefficients_.push_back(coefficients[i]);
+      steps_.push_back(0.0);
+    }
   }
   
+  threshold_ = threshold;
   coefficient_index_ = 0;
-  
   status_ = PHASE_ONE;
 }
 
 PID::~PID() {}
 
-void PID::Init(double Kp, double Ki, double Kd) {
-  Kp_ = Kp;
-  Ki_ = Ki;
-  Kd_ = Kd;
-  
+void PID::Init() {
   p_error_ = 0;
   i_error_ = 0;
   d_error_ = 0;
@@ -46,15 +41,14 @@ void PID::UpdateError(double cte) {
 }
 
 double PID::TotalError() {
-  // return -(coefficients_[0] * p_error_ + coefficients_[1] * i_error_ + coefficients_[2] * d_error_);
-  return -(Kp_ * p_error_ + Ki_ * i_error_ + Kd_ * d_error_);
+  return -(coefficients_[0] * p_error_ + coefficients_[1] * i_error_ + coefficients_[2] * d_error_);
 }
 
 double PID::Twiddle(double error, double best_error) {
   double step = accumulate(steps_.begin(), steps_.end(), 0.0);
   
   cout << endl;
-  cout << "Total Step: " << step << endl;
+  cout << "Total Step: " << step << " / " << threshold_ << endl;
 
   int index = coefficient_index_ % number_of_coefficients_;
   
@@ -89,13 +83,13 @@ double PID::Twiddle(double error, double best_error) {
     case PHASE_THREE:
     {
       if (error < best_error) {
-        steps_[index] *= 1.05;
-        // steps_[index] *= 1.1;
+        // steps_[index] *= 1.05;
+        steps_[index] *= 1.1;
         latest_best_error = error;
       } else {
         coefficients_[index] += steps_[index];
-        steps_[index] *= 0.95;
-        // steps_[index] *= 0.9;
+        // steps_[index] *= 0.95;
+        steps_[index] *= 0.9;
         latest_best_error = best_error;
       }
       status_ = PHASE_ONE;
